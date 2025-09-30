@@ -1,0 +1,6 @@
+'1.0.0':
+    - 'First version of Laravel Boost for Winter CMS'
+    - 'Integrates Laravel Boost and MCP server capabilities'
+    - 'Provides Winter CMS specific MCP tools'
+    - 'Registers Winter CMS documentation sources'
+    - 'Extends AI guidelines with Winter CMS conventions'
