@@ -1,0 +1,27 @@
+{
+    "name": "winter/wn-laravelboost-plugin",
+    "type": "winter-plugin",
+    "description": "Integrates Laravel Boost into Winter CMS; a MCP server for augmenting your AI powered local development experience.",
+    "homepage": "https://github.com/wintercms/wn-laravelboost-plugin",
+    "keywords": ["winter", "wintercms", "laravel", "boost", "mcp", "ai"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Luke Towers",
+            "email": "wintercms@luketowers.ca"
+        },
+        {
+            "name": "Winter CMS Maintainers",
+            "homepage": "https://wintercms.com",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "laravel/boost": "^1.2"
+    },
+    "support": {
+        "issues": "https://github.com/wintercms/wn-laravelboost-plugin/issues",
+        "discord": "https://discord.gg/D5MFSPH6Ux",
+        "source": "https://github.com/wintercms/wn-laravelboost-plugin"
+    }
+}
