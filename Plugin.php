@@ -6,7 +6,11 @@ use Laravel\Boost\BoostServiceProvider;
 use Laravel\Mcp\Facades\Mcp;
 use Laravel\Mcp\Server\McpServiceProvider;
 use System\Classes\PluginBase;
-use Winter\LaravelBoost\Classes\WinterMcpProvider;
+use Winter\LaravelBoost\Classes\Tools\WinterDevelopmentGuide;
+use Winter\LaravelBoost\Classes\Tools\WinterProjectOverview;
+use Winter\LaravelBoost\Classes\Tools\WinterProjectStructure;
+use Winter\LaravelBoost\Classes\Tools\WinterScaffoldingCommands;
+use Winter\LaravelBoost\Classes\Tools\WinterViewStructure;
 use Winter\LaravelBoost\Console\TestMcpTools;
 
 /**
@@ -53,20 +57,25 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Register Winter CMS specific MCP tools
+     * Register Winter CMS specific MCP tools via Laravel Boost config
      */
     protected function registerWinterMcpTools(): void
     {
-        // Register Winter CMS MCP tools if Laravel MCP is available
-        if (class_exists(\Laravel\Mcp\Server\McpServer::class)) {
-            $mcpProvider = new WinterMcpProvider();
+        // Register Winter CMS MCP tools via Laravel Boost's tool include config
+        if (class_exists(\Laravel\Mcp\Server\Tool::class)) {
+            $existingTools = config('boost.mcp.tools.include', []);
 
-            // Hook into MCP server setup
-            $this->app->booted(function () use ($mcpProvider) {
-                if ($mcpServer = app()->bound('mcp.server') ? app('mcp.server') : null) {
-                    $mcpProvider->registerTools($mcpServer);
-                }
-            });
+            $winterTools = [
+                WinterProjectOverview::class,
+                WinterProjectStructure::class,
+                WinterScaffoldingCommands::class,
+                WinterViewStructure::class,
+                WinterDevelopmentGuide::class,
+            ];
+
+            config([
+                'boost.mcp.tools.include' => array_merge($existingTools, $winterTools)
+            ]);
         }
     }
 
