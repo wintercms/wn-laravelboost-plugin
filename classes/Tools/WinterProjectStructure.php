@@ -77,7 +77,7 @@ class WinterProjectStructure extends Tool
             // Controllers from this plugin
             $controllersPath = $pluginPath . '/controllers';
             if (is_dir($controllersPath)) {
-                $controllerFiles = glob($controllersPath . '/*.php');
+                $controllerFiles = glob($controllersPath . '/*.php') ?: [];
                 foreach ($controllerFiles as $file) {
                     $controllerName = basename($file, '.php');
                     $structure['controllers'][] = [

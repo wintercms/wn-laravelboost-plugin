@@ -41,13 +41,13 @@ class WinterViewStructure extends Tool
         // Map theme views
         $themesPath = base_path('themes');
         if (is_dir($themesPath)) {
-            $themes = glob($themesPath . '/*', GLOB_ONLYDIR);
+            $themes = glob($themesPath . '/*', GLOB_ONLYDIR) ?: [];
             foreach ($themes as $themePath) {
                 $themeName = basename($themePath);
                 $viewStructure['frontend_views']['themes'][$themeName] = [
                     'layouts' => count(glob($themePath . '/layouts/*.htm') ?: []),
-                    'pages' => count(glob($themePath . '/pages/**/*.htm', GLOB_BRACE) ?: []),
-                    'partials' => count(glob($themePath . '/partials/**/*.htm', GLOB_BRACE) ?: []),
+                    'pages' => $this->countFilesRecursive($themePath . '/pages', '*.htm'),
+                    'partials' => $this->countFilesRecursive($themePath . '/partials', '*.htm'),
                 ];
             }
         }
@@ -55,9 +55,10 @@ class WinterViewStructure extends Tool
         // Map plugin component templates
         // Path: plugins/author/pluginname/components/componentname/template.htm
         // Index:   0      1       2           3          4            5
-        $pluginComponentViews = glob(base_path('plugins/*/*/components/*/*.htm'));
+        $pluginComponentViews = glob(base_path('plugins/*/*/components/*/*.htm')) ?: [];
+        $basePath = base_path();
         foreach ($pluginComponentViews as $viewFile) {
-            $relativePath = str_replace(base_path(), '', $viewFile);
+            $relativePath = substr($viewFile, strlen($basePath));
             $pathParts = explode('/', trim($relativePath, '/'));
             if (count($pathParts) >= 6) {
                 $plugin = $pathParts[1] . '.' . $pathParts[2];
@@ -75,9 +76,9 @@ class WinterViewStructure extends Tool
         // Map backend controller views
         // Path: plugins/author/pluginname/controllers/controllername/view.php
         // Index:   0      1       2           3            4           5
-        $controllerViews = glob(base_path('plugins/*/*/controllers/*/*.php'));
+        $controllerViews = glob(base_path('plugins/*/*/controllers/*/*.php')) ?: [];
         foreach ($controllerViews as $viewFile) {
-            $relativePath = str_replace(base_path(), '', $viewFile);
+            $relativePath = substr($viewFile, strlen($basePath));
             $pathParts = explode('/', trim($relativePath, '/'));
             if (count($pathParts) >= 6) {
                 $plugin = $pathParts[1] . '.' . $pathParts[2];
@@ -100,5 +101,24 @@ class WinterViewStructure extends Tool
         ];
 
         return Response::json($viewStructure);
+    }
+
+    /**
+     * Recursively count files matching a pattern in a directory.
+     */
+    private function countFilesRecursive(string $directory, string $pattern): int
+    {
+        if (!is_dir($directory)) {
+            return 0;
+        }
+
+        $count = count(glob($directory . '/' . $pattern) ?: []);
+
+        $subdirs = glob($directory . '/*', GLOB_ONLYDIR) ?: [];
+        foreach ($subdirs as $subdir) {
+            $count += $this->countFilesRecursive($subdir, $pattern);
+        }
+
+        return $count;
     }
 }
