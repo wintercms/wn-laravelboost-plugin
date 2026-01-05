@@ -8,11 +8,11 @@ This plugin integrates [Laravel Boost](https://github.com/laravel/boost) and [La
 
 This plugin provides several MCP (Model Context Protocol) tools specifically designed for Winter CMS development:
 
-- **`winter_plugin_list`**: Get detailed information about all installed plugins
-- **`winter_theme_info`**: Get active theme information and configuration
-- **`winter_component_list`**: List all registered components with their details
-- **`winter_system_info`**: Get Winter CMS version and system information
-- **`winter_backend_controllers`**: List backend controllers across all plugins
+- **`winter-project-overview`**: Get Winter CMS project overview: version, environment, theme, and plugin/component counts
+- **`winter-project-structure`**: Get complete project structure: plugins, components, and backend controllers
+- **`winter-scaffolding-commands`**: Guide to Winter CMS code generation commands
+- **`winter-view-structure`**: Map view files and understand Winter CMS dual view system (Twig frontend, PHP backend)
+- **`winter-development-guide`**: Architecture patterns, services, and best practices
 
 ### Documentation Integration
 
@@ -72,6 +72,6 @@ This plugin significantly improves AI-assisted development by:
 This plugin follows Winter CMS plugin conventions:
 
 - Main functionality in `Plugin.php`
-- MCP provider in `classes/WinterMcpProvider.php`
+- MCP Tool classes in `classes/Tools/` directory
 - Language files in `lang/` directory
 - Version tracking in `updates/version.yaml`
