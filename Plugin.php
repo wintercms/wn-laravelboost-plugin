@@ -2,10 +2,20 @@
 
 namespace Winter\LaravelBoost;
 
+require_once __DIR__.'/classes/Support/WinterDocumentationSources.php';
+require_once __DIR__.'/classes/Support/WinterDocumentationSearchParser.php';
+require_once __DIR__.'/classes/Support/LaravelBoostCompatibility.php';
+require_once __DIR__.'/classes/Tools/SearchWinterDocs.php';
+require_once __DIR__.'/classes/Servers/WinterDocsServer.php';
+
 use Laravel\Boost\BoostServiceProvider;
 use Laravel\Mcp\Facades\Mcp;
 use Laravel\Mcp\Server\McpServiceProvider;
 use System\Classes\PluginBase;
+use Winter\LaravelBoost\Classes\Servers\WinterDocsServer;
+use Winter\LaravelBoost\Classes\Support\LaravelBoostCompatibility;
+use Winter\LaravelBoost\Classes\Support\WinterDocumentationSources;
+use Winter\LaravelBoost\Classes\Tools\SearchWinterDocs;
 use Winter\LaravelBoost\Classes\Tools\WinterDevelopmentGuide;
 use Winter\LaravelBoost\Classes\Tools\WinterProjectOverview;
 use Winter\LaravelBoost\Classes\Tools\WinterProjectStructure;
@@ -52,8 +62,25 @@ class Plugin extends PluginBase
      */
     public function boot(): void
     {
+        $this->registerWinterDocumentationServer();
         $this->registerWinterMcpTools();
         $this->extendBoostConfiguration();
+    }
+
+    /**
+     * Register the dedicated Winter documentation MCP server.
+     */
+    protected function registerWinterDocumentationServer(): void
+    {
+        if (! $this->app->config->get('app.debug', false)) {
+            return;
+        }
+
+        if (! class_exists(\Laravel\Mcp\Server::class)) {
+            return;
+        }
+
+        Mcp::local('winter-docs', WinterDocsServer::class);
     }
 
     /**
@@ -66,6 +93,7 @@ class Plugin extends PluginBase
             $existingTools = config('boost.mcp.tools.include', []);
 
             $winterTools = [
+                SearchWinterDocs::class,
                 WinterProjectOverview::class,
                 WinterProjectStructure::class,
                 WinterScaffoldingCommands::class,
@@ -86,32 +114,13 @@ class Plugin extends PluginBase
     {
         // Extend configuration files with Winter CMS specific settings
         if (config('boost.enabled', false)) {
-            // Add Winter CMS documentation sources
+            $winterDocumentationSources = WinterDocumentationSources::all();
+
             config([
-                'boost.documentation.sources.winter_cms' => [
-                    'name' => 'Winter CMS',
-                    'base_url' => 'https://wintercms.com/docs',
-                    'version' => '1.2',
-                    'sections' => [
-                        'general' => '/v1.2/docs',
-                        'markup' => '/v1.2/markup',
-                        'ui' => '/v1.2/ui',
-                        'api' => '/v1.2/api',
-                    ]
-                ],
-                'boost.documentation.sources.twig' => [
-                    'name' => 'Twig',
-                    'base_url' => 'https://twig.symfony.com/doc',
-                    'version' => '3.x',
-                    'sections' => [
-                        'templates' => '/3.x/templates.html',
-                        'syntax' => '/3.x/syntax.html',
-                        'filters' => '/3.x/filters/index.html',
-                        'functions' => '/3.x/functions/index.html',
-                        'tags' => '/3.x/tags/index.html',
-                    ]
-                ]
+                'winter.laravelboost.documentation.sources' => $winterDocumentationSources,
             ]);
+
+            $this->registerLegacyDocumentationSources($winterDocumentationSources);
 
             // Add Winter CMS specific guidelines
             config([
@@ -128,5 +137,27 @@ class Plugin extends PluginBase
                 ]
             ]);
         }
+    }
+
+    /**
+     * Register Winter documentation sources for legacy Laravel Boost versions
+     * that still resolve documentation sources from configuration.
+     *
+     * @param  array<string, array<string, mixed>>  $winterDocumentationSources
+     */
+    protected function registerLegacyDocumentationSources(array $winterDocumentationSources): void
+    {
+        $existingDocumentationSources = config(LaravelBoostCompatibility::LEGACY_DOCUMENTATION_SOURCES_CONFIG_KEY);
+
+        if (! LaravelBoostCompatibility::shouldRegisterLegacyDocumentationSources($existingDocumentationSources)) {
+            return;
+        }
+
+        config([
+            LaravelBoostCompatibility::LEGACY_DOCUMENTATION_SOURCES_CONFIG_KEY => LaravelBoostCompatibility::mergeDocumentationSources(
+                is_array($existingDocumentationSources) ? $existingDocumentationSources : [],
+                $winterDocumentationSources,
+            ),
+        ]);
     }
 }
