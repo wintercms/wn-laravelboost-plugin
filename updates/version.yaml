@@ -4,3 +4,11 @@
     - 'Provides Winter CMS specific MCP tools'
     - 'Registers Winter CMS documentation sources'
     - 'Extends AI guidelines with Winter CMS conventions'
+'2.0.0':
+    - 'Registered the MCP tools through the Laravel Boost tool include config instead of hooking the MCP server on boot'
+    - 'Split the WinterMcpProvider class into dedicated Laravel MCP Tool classes under classes/Tools'
+    - 'Removed the Winter\LaravelBoost\Classes\WinterMcpProvider class'
+    - 'Renamed the MCP tools from snake_case to kebab-case (winter-project-overview, winter-project-structure, winter-scaffolding-commands, winter-view-structure, winter-development-guide)'
+    - 'Removed the winter_scaffolding_discovery MCP tool'
+    - 'Updated the winter:test-mcp console command to exercise the new Tool classes'
+    - 'Added composer.json so the plugin can be installed through Composer'
